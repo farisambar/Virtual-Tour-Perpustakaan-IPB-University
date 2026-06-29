@@ -1,564 +1,243 @@
-# Menjalankan dan Hosting Project Unity WebGL
+# Virtual Tour Perpustakaan IPB University — WebGL
 
-Dokumen ini menjelaskan cara menjalankan hasil build Unity WebGL secara lokal dan melakukan deployment ke Firebase Hosting.
+Branch ini berisi hasil build WebGL dari project Virtual Tour Perpustakaan IPB University. Aplikasi dijalankan melalui browser menggunakan Firebase Local Emulator Suite.
 
-## Prasyarat
+> Branch ini hanya berisi hasil build WebGL dan tidak dibuka menggunakan Unity Editor.  
+> Source project Unity tersedia pada branch `code-untuk-unity`.
 
-Pastikan perangkat sudah memiliki:
+## Persyaratan
 
-- Browser modern seperti Google Chrome, Microsoft Edge, atau Firefox.
-- Antigravity IDE atau editor berbasis Visual Studio Code.
-- Extension Live Server.
-- Node.js dan npm untuk deployment Firebase.
-- Firebase CLI untuk deployment Firebase Hosting.
+Sebelum menjalankan aplikasi, pastikan perangkat sudah memiliki:
 
----
+- Git
+- Git Large File Storage (Git LFS)
+- Node.js versi 18 atau lebih baru
+- Firebase CLI
+- Browser modern, seperti Google Chrome, Microsoft Edge, atau Mozilla Firefox
+- Koneksi internet saat pertama kali mengunduh repository dan file Git LFS
 
-# 1. Menjalankan Project secara Lokal
+## Cara Menjalankan Aplikasi
 
-## 1.1 Clone atau Download Repository
+### 1. Instal Git LFS
 
-Clone repository menggunakan Git:
+Pastikan Git LFS sudah terpasang pada perangkat.
+
+Setelah terpasang, buka Command Prompt, PowerShell, Git Bash, atau terminal, kemudian jalankan:
 
 ```bash
-git clone <URL_REPOSITORY>
+git lfs install
+```
+
+Perintah ini cukup dilakukan satu kali pada perangkat.
+
+### 2. Instal Firebase CLI
+
+Firebase CLI dipasang menggunakan npm yang tersedia setelah Node.js diinstal.
+
+Jalankan:
+
+```bash
+npm install -g firebase-tools
+```
+
+Periksa apakah Firebase CLI berhasil dipasang:
+
+```bash
+firebase --version
+```
+
+Jika nomor versi Firebase CLI muncul, instalasi sudah berhasil.
+
+### 3. Clone Repository
+
+Jalankan perintah berikut untuk mengunduh branch hasil build WebGL:
+
+```bash
+git clone -b code-setelah-build-WebGL --single-branch https://github.com/farisambar/Virtual-Tour-Perpustakaan-IPB-University.git
 ```
 
 Masuk ke folder repository:
 
 ```bash
-cd <NAMA_FOLDER_REPOSITORY>
+cd Virtual-Tour-Perpustakaan-IPB-University
 ```
 
-Repository juga dapat diunduh melalui tombol **Code → Download ZIP**, kemudian ekstrak file ZIP tersebut.
+### 4. Unduh File Git LFS
 
-## 1.2 Temukan Folder Hasil Build WebGL
-
-Cari folder yang berisi struktur berikut:
-
-```text
-WebGL_Build/
-├── Build/
-├── TemplateData/
-├── index.html
-└── StreamingAssets/
-```
-
-Folder `StreamingAssets` mungkin tidak tersedia jika project tidak menggunakannya.
-
-File utama yang akan dijalankan adalah:
-
-```text
-index.html
-```
-
-## 1.3 Buka Folder di Antigravity IDE
-
-Pada Antigravity IDE, pilih:
-
-```text
-File
-→ Open Folder
-```
-
-Buka folder hasil build WebGL yang berisi file `index.html`.
-
-Jangan hanya membuka file `index.html`. Buka seluruh folder build agar semua file `.wasm`, `.data`, dan `.js` dapat terbaca dengan benar.
-
-## 1.4 Instal Extension Live Server
-
-Buka menu **Extensions**, kemudian cari:
-
-```text
-Live Server
-```
-
-Instal extension tersebut dan lakukan reload Antigravity IDE jika diminta.
-
-## 1.5 Jalankan dengan Live Server
-
-Pada panel Explorer:
-
-1. Klik kanan file `index.html`.
-2. Pilih **Open with Live Server**.
-
-Browser akan terbuka pada alamat lokal seperti:
-
-```text
-http://127.0.0.1:5500/index.html
-```
-
-Project Unity WebGL sekarang dapat dijalankan melalui browser.
-
-## 1.6 Jangan Membuka index.html secara Langsung
-
-Jangan membuka `index.html` dengan klik dua kali dari File Explorer.
-
-Cara tersebut akan menghasilkan alamat seperti:
-
-```text
-file:///C:/...
-```
-
-Unity WebGL perlu dijalankan melalui server HTTP agar browser dapat memuat file build seperti:
-
-```text
-.wasm
-.data
-.js
-```
-
-Gunakan Live Server atau server lokal lainnya.
-
-## 1.7 Mengatasi Error WebAssembly
-
-Apabila muncul error seperti:
-
-```text
-WebAssembly streaming compilation failed
-```
-
-atau file build memiliki ekstensi:
-
-```text
-.wasm.br
-.data.br
-.framework.js.br
-```
-
-build kemungkinan menggunakan kompresi Brotli.
-
-Untuk penggunaan Live Server, buka Unity dan atur:
-
-```text
-Edit
-→ Project Settings
-→ Player
-→ WebGL
-→ Publishing Settings
-→ Compression Format = Disabled
-```
-
-Setelah itu, lakukan build ulang WebGL.
-
----
-
-# 2. Hosting ke Firebase
-
-Setiap pengguna harus menggunakan akun Firebase dan Firebase Project miliknya sendiri.
-
-## 2.1 Instal Node.js
-
-Periksa apakah Node.js dan npm sudah tersedia:
+Pastikan seluruh file build berukuran besar sudah terunduh:
 
 ```bash
-node -v
-npm -v
+git lfs pull
 ```
 
-Jika nomor versi muncul, Node.js dan npm sudah terpasang.
+Tunggu sampai proses pengunduhan selesai.
 
-Jika belum, instal Node.js terlebih dahulu.
+### 5. Periksa Struktur Folder
 
-## 2.2 Instal Firebase CLI
-
-Jalankan:
-
-```bash
-npm install -g firebase-tools
-```
-
-Periksa instalasinya:
-
-```bash
-firebase --version
-```
-
-Jika nomor versi Firebase CLI muncul, instalasi berhasil.
-
-## 2.3 Login ke Firebase
-
-Jalankan:
-
-```bash
-firebase login
-```
-
-Browser akan terbuka untuk proses login.
-
-Gunakan akun Firebase masing-masing.
-
-Setelah login berhasil, periksa daftar project:
-
-```bash
-firebase projects:list
-```
-
-## 2.4 Buat Firebase Project
-
-Buka Firebase Console, kemudian:
-
-1. Pilih **Add project**.
-2. Masukkan nama project.
-3. Selesaikan proses pembuatan project.
-4. Catat bagian **Project ID**.
-
-Contoh Project ID:
+Pastikan terminal berada pada folder utama repository yang berisi:
 
 ```text
-nama-project-webgl
-```
-
-Project ID akan digunakan saat deployment.
-
-## 2.5 Masuk ke Folder Build WebGL
-
-Buka terminal pada folder yang berisi `index.html`.
-
-Contoh struktur folder:
-
-```text
-WebGL_Build/
-├── Build/
-├── TemplateData/
-├── index.html
-└── StreamingAssets/
-```
-
-Masuk ke folder build:
-
-```bash
-cd WebGL_Build
-```
-
-Pastikan terminal berada di folder yang sama dengan file `index.html`.
-
-## 2.6 Inisialisasi Firebase Hosting
-
-Jalankan:
-
-```bash
-firebase init hosting
-```
-
-Jawab pertanyaan Firebase CLI sebagai berikut.
-
-### Pilih Firebase Project
-
-Pilih:
-
-```text
-Use an existing project
-```
-
-Kemudian pilih Firebase Project yang sudah dibuat.
-
-### Public Directory
-
-Ketika muncul:
-
-```text
-What do you want to use as your public directory?
-```
-
-Masukkan:
-
-```text
-.
-```
-
-Tanda titik berarti folder yang sedang dibuka akan digunakan sebagai folder publik.
-
-### Single-Page Application
-
-Ketika muncul:
-
-```text
-Configure as a single-page app?
-```
-
-Pilih:
-
-```text
-No
-```
-
-### GitHub Deployment
-
-Ketika muncul:
-
-```text
-Set up automatic builds and deploys with GitHub?
-```
-
-Pilih:
-
-```text
-No
-```
-
-### Overwrite index.html
-
-Apabila muncul:
-
-```text
-File ./index.html already exists. Overwrite?
-```
-
-Pilih:
-
-```text
-No
-```
-
-Jangan menimpa `index.html` karena file tersebut merupakan halaman utama hasil build Unity WebGL.
-
-## 2.7 Periksa Konfigurasi Firebase
-
-Setelah inisialisasi, Firebase akan membuat file:
-
-```text
-firebase.json
+Build
+assets
 .firebaserc
+firebase.json
+index.html
+style.css
 ```
 
-Isi dasar `firebase.json` dapat terlihat seperti berikut:
+Firebase Emulator harus dijalankan dari folder yang memiliki file `firebase.json`.
 
-```json
-{
-  "hosting": {
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  }
-}
-```
+### 6. Jalankan Firebase Emulator
 
-Pastikan nilai `public` adalah:
-
-```json
-"public": "."
-```
-
-## 2.8 Jalankan Firebase secara Lokal
-
-Sebelum melakukan deployment, project dapat diuji menggunakan Firebase Local Server:
+Jalankan perintah:
 
 ```bash
-firebase serve --only hosting
+firebase emulators:start --only hosting
 ```
 
-Biasanya project dapat dibuka melalui:
+Tunggu sampai terminal menampilkan bahwa Firebase Hosting Emulator sudah berjalan.
+
+Terminal akan menampilkan alamat lokal, biasanya:
+
+```text
+http://127.0.0.1:5000
+```
+
+atau:
 
 ```text
 http://localhost:5000
 ```
 
-Untuk menghentikan server, tekan:
+### 7. Buka Aplikasi
+
+Buka alamat yang ditampilkan pada terminal menggunakan browser.
+
+Contoh:
+
+```text
+http://127.0.0.1:5000
+```
+
+Tunggu sampai file Unity WebGL dan seluruh aset panorama selesai dimuat. Proses pertama dapat memerlukan waktu cukup lama karena ukuran file build cukup besar.
+
+## Kontrol Aplikasi
+
+```text
+Mouse          : Menggerakkan sudut pandang kamera
+Panah Atas     : Memilih atau berpindah ke arah depan
+Panah Bawah    : Memilih atau berpindah ke arah belakang
+Panah Kiri     : Memilih atau berpindah ke arah kiri
+Panah Kanan    : Memilih atau berpindah ke arah kanan
+```
+
+Pilihan arah navigasi dapat berbeda pada setiap lokasi virtual tour.
+
+## Menghentikan Firebase Emulator
+
+Kembali ke terminal yang menjalankan Firebase Emulator, kemudian tekan:
 
 ```text
 Ctrl + C
 ```
 
-## 2.9 Deploy ke Firebase Hosting
-
-Jalankan:
-
-```bash
-firebase deploy --only hosting --project <FIREBASE_PROJECT_ID>
-```
-
-Ganti:
+Jika muncul pertanyaan untuk menghentikan proses, konfirmasi dengan menekan:
 
 ```text
-<FIREBASE_PROJECT_ID>
+Y
 ```
 
-dengan Project ID Firebase masing-masing.
+## Mengatasi Masalah
 
-Contoh:
+### Perintah `firebase` Tidak Dikenali
 
-```bash
-firebase deploy --only hosting --project nama-project-webgl
-```
-
-Tunggu sampai muncul:
-
-```text
-Deploy complete!
-```
-
-Firebase akan menampilkan alamat website seperti:
-
-```text
-https://nama-project-webgl.web.app
-```
-
----
-
-# 3. Memperbarui Website
-
-Jika terdapat perubahan pada project Unity:
-
-1. Simpan perubahan di Unity.
-2. Lakukan build ulang WebGL.
-3. Simpan hasil build ke folder yang sama.
-4. Pastikan file `firebase.json` dan `.firebaserc` tidak terhapus.
-5. Jalankan project secara lokal untuk melakukan pengecekan.
-6. Deploy ulang dengan perintah:
-
-```bash
-firebase deploy --only hosting --project <FIREBASE_PROJECT_ID>
-```
-
-Tidak perlu menjalankan kembali:
-
-```bash
-firebase init hosting
-```
-
-selama file konfigurasi Firebase masih tersedia.
-
----
-
-# 4. Perintah Penting
-
-## Menjalankan dengan Live Server
-
-```text
-Klik kanan index.html
-→ Open with Live Server
-```
-
-## Menjalankan Firebase secara Lokal
-
-```bash
-firebase serve --only hosting
-```
-
-## Melihat Project Firebase
-
-```bash
-firebase projects:list
-```
-
-## Melihat Akun Firebase yang Sedang Login
-
-```bash
-firebase login:list
-```
-
-## Login Ulang
-
-```bash
-firebase logout
-firebase login
-```
-
-## Deployment
-
-```bash
-firebase deploy --only hosting --project <FIREBASE_PROJECT_ID>
-```
-
----
-
-# 5. Alur Singkat
-
-```text
-Clone atau download repository
-→ Buka folder hasil build WebGL
-→ Jalankan index.html menggunakan Live Server
-→ Periksa seluruh fitur
-→ Buat Firebase Project
-→ Jalankan firebase init hosting
-→ Jalankan firebase serve untuk pengujian
-→ Jalankan firebase deploy
-→ Buka Hosting URL
-```
-
----
-
-# 6. Troubleshooting
-
-## Live Server Tidak Muncul
-
-Pastikan:
-
-1. Extension Live Server sudah terpasang.
-2. Antigravity IDE sudah di-reload.
-3. Folder yang dibuka adalah folder yang berisi `index.html`.
-4. File `index.html` diklik kanan dari panel Explorer.
-
-## Error WebAssembly Streaming Compilation Failed
-
-Buka Unity dan ubah:
-
-```text
-Edit
-→ Project Settings
-→ Player
-→ WebGL
-→ Publishing Settings
-→ Compression Format = Disabled
-```
-
-Kemudian lakukan build ulang WebGL.
-
-## Halaman Firebase Welcome Muncul
-
-Hal ini biasanya terjadi karena `index.html` hasil build Unity tertimpa saat menjalankan `firebase init hosting`.
-
-Solusi:
-
-1. Build ulang Unity WebGL.
-2. Pastikan `index.html` merupakan file hasil build Unity.
-3. Jangan memilih `Yes` pada pertanyaan overwrite `index.html`.
-4. Jalankan deployment kembali:
-
-```bash
-firebase deploy --only hosting --project <FIREBASE_PROJECT_ID>
-```
-
-## Website Masih Menampilkan Versi Lama
-
-Lakukan hard refresh:
-
-```text
-Ctrl + F5
-```
-
-Website juga dapat diperiksa melalui mode Incognito.
-
-## Project Firebase Tidak Ditemukan
-
-Periksa daftar project:
-
-```bash
-firebase projects:list
-```
-
-Pastikan Project ID yang digunakan benar:
-
-```bash
-firebase deploy --only hosting --project <FIREBASE_PROJECT_ID>
-```
-
-## Firebase CLI Tidak Dikenali
-
-Instal ulang Firebase CLI:
+Pastikan Firebase CLI sudah dipasang:
 
 ```bash
 npm install -g firebase-tools
 ```
 
-Kemudian tutup dan buka kembali terminal.
-
-Periksa kembali:
+Setelah instalasi, tutup terminal dan buka kembali, kemudian periksa:
 
 ```bash
 firebase --version
 ```
+
+### Perintah `git lfs` Tidak Dikenali
+
+Pastikan Git LFS sudah terpasang, kemudian jalankan:
+
+```bash
+git lfs install
+```
+
+### File Build Tidak Terunduh dengan Benar
+
+Jalankan:
+
+```bash
+git lfs pull
+```
+
+File Git LFS yang belum terunduh dapat menyebabkan aplikasi gagal dimuat.
+
+### File `firebase.json` Tidak Ditemukan
+
+Pastikan terminal berada di folder utama repository:
+
+```bash
+cd Virtual-Tour-Perpustakaan-IPB-University
+```
+
+Kemudian jalankan kembali:
+
+```bash
+firebase emulators:start --only hosting
+```
+
+### Aplikasi Menampilkan Halaman Kosong atau Gagal Dimuat
+
+Pastikan:
+
+1. Seluruh file Git LFS sudah diunduh.
+2. Folder `Build` tidak dihapus atau dipindahkan.
+3. Firebase Emulator dijalankan dari folder utama repository.
+4. Aplikasi dibuka melalui alamat yang diberikan Firebase Emulator.
+5. Terminal Firebase Emulator tetap terbuka selama aplikasi digunakan.
+
+Jalankan kembali:
+
+```bash
+git lfs pull
+firebase emulators:start --only hosting
+```
+
+### Port Firebase Emulator Sedang Digunakan
+
+Hentikan Firebase Emulator atau aplikasi lain yang menggunakan port tersebut, kemudian jalankan kembali:
+
+```bash
+firebase emulators:start --only hosting
+```
+
+## Ringkasan
+
+```text
+Instal Git dan Git LFS
+→ Instal Node.js
+→ Instal Firebase CLI
+→ Clone branch code-setelah-build-WebGL
+→ Jalankan git lfs pull
+→ Jalankan firebase emulators:start --only hosting
+→ Buka alamat lokal yang muncul pada terminal
+```
+
+## Source Project Unity
+
+Untuk membuka dan mengembangkan project menggunakan Unity Editor, gunakan branch:
+
+```text
+code-untuk-unity
+```
+
+Branch `code-setelah-build-WebGL` digunakan untuk menjalankan hasil build WebGL melalui browser.
