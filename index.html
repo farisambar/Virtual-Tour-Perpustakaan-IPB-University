@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Tour Perpustakaan IPB</title>
+  <meta name="description" content="Jelajahi Perpustakaan IPB University secara virtual melalui tur interaktif 3D.">
+  <link rel="icon" type="image/x-icon" href="assets/logofinal.ico">
+  <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+
+<body>
+
+  <!-- ============================================
+       SECTION 1: LANDING PAGE
+       ============================================ -->
+  <section id="landing-page">
+    <div class="landing-content">
+
+      <!-- Header Book Decoration (SVG) -->
+      <div class="header-decoration">
+        <img src="assets/Bagian Atas.svg" alt="Dekorasi Buku Perpustakaan" class="header-svg">
+      </div>
+
+      <!-- Welcome Text -->
+      <p class="welcome-subtitle">Selamat Datang di</p>
+      <h1 class="welcome-title">Virtual Tour Perpustakaan</h1>
+      <p class="welcome-campus"><strong>IPB University</strong></p>
+
+      <!-- CTA Button -->
+      <button id="btn-start-tour" class="cta-button" onclick="startTour()">
+        Mulai Virtual Tour
+      </button>
+
+    </div>
+
+    <!-- Wave Footer (SVG) -->
+    <div class="wave-footer">
+      <img src="assets/Bagian Bawah.svg" alt="Dekorasi Gelombang">
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 2: LOADING SCREEN
+       ============================================ -->
+  <section id="loading-screen" class="hidden">
+
+    <p class="loading-text">Memuat Virtual Tour...</p>
+    <div class="progress-container">
+      <div class="progress-bar-bg">
+        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+      </div>
+      <span id="progress-percent" class="progress-percent">0%</span>
+    </div>
+    <p id="loading-tip" class="loading-tip">Gerakkan Kamera Menggunakan <strong>Arrow Kanan Kiri Atas Bawah</strong>
+      pada Keyboard</p>
+  </section>
+
+  <!-- ============================================
+       SECTION 3: VIRTUAL TOUR (GAME)
+       ============================================ -->
+  <section id="game-section" class="hidden">
+    <!-- Navbar -->
+    <nav class="game-navbar">
+      <div class="navbar-left">
+        <img src="assets/logofinal.ico" alt="Logo IPB" class="navbar-logo">
+        <span class="navbar-title">Virtual Tour Perpustakaan IPB</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn" onclick="toggleFullscreen()" id="btn-fullscreen">
+          <span class="btn-icon">⛶</span> Fullscreen
+        </button>
+        <button class="nav-btn" onclick="backToLanding()">
+          Kembali
+        </button>
+      </div>
+    </nav>
+
+    <!-- Unity Canvas Container -->
+    <div class="canvas-container">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+    </div>
+  </section>
+
+  <!-- ============================================
+       CONFIRMATION MODAL
+       ============================================ -->
+  <div id="confirm-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </div>
+      <h2 class="modal-title">Kembali ke Halaman Utama?</h2>
+      <p class="modal-text">Progres Virtual Tour saat ini akan direset. Apakah Anda yakin ingin kembali?</p>
+      <div class="modal-actions">
+        <button id="btn-modal-cancel" class="modal-btn modal-btn-cancel">Batal</button>
+        <button id="btn-modal-confirm" class="modal-btn modal-btn-confirm">Ya, Kembali</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+  <script src="Build/WebGL_Build.loader.js"></script>
+  <script>
+    // ---- Elements ----
+    const landingPage = document.getElementById('landing-page');
+    const loadingScreen = document.getElementById('loading-screen');
+    const gameSection = document.getElementById('game-section');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const progressPercent = document.getElementById('progress-percent');
+    const loadingTip = document.getElementById('loading-tip');
+    const canvas = document.getElementById('unity-canvas');
+
+    let unityInstance = null;
+
+    // Tip is now static
+
+    // ---- Start Tour ----
+    function startTour() {
+      // Transition: Landing → Loading
+      landingPage.style.opacity = '0';
+      landingPage.style.transition = 'opacity 0.5s ease';
+
+      setTimeout(() => {
+        landingPage.classList.add('hidden');
+        loadingScreen.classList.remove('hidden');
+        loadingScreen.style.opacity = '0';
+        requestAnimationFrame(() => {
+          loadingScreen.style.transition = 'opacity 0.5s ease';
+          loadingScreen.style.opacity = '1';
+        });
+
+
+        // Set canvas size based on screen
+        const isM = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isM) {
+          canvas.style.width = '100%';
+          canvas.style.height = '100%';
+        } else {
+          canvas.style.width = '960px';
+          canvas.style.height = '600px';
+        }
+
+        // Load Unity
+        createUnityInstance(canvas, {
+          dataUrl: "Build/WebGL_Build.data",
+          frameworkUrl: "Build/WebGL_Build.framework.js",
+          codeUrl: "Build/WebGL_Build.wasm",
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "IPB University",
+          productName: "Virtual Tour Perpustakaan IPB",
+          productVersion: "0.1",
+        }, (progress) => {
+          // Update progress bar
+          const pct = Math.round(progress * 100);
+          progressBarFill.style.width = pct + '%';
+          progressPercent.textContent = pct + '%';
+        }).then((instance) => {
+          unityInstance = instance;
+
+          // Transition: Loading → Game
+          progressBarFill.style.width = '100%';
+          progressPercent.textContent = '100%';
+
+          setTimeout(() => {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+              loadingScreen.classList.add('hidden');
+              gameSection.classList.remove('hidden');
+              gameSection.style.opacity = '0';
+              requestAnimationFrame(() => {
+                gameSection.style.transition = 'opacity 0.5s ease';
+                gameSection.style.opacity = '1';
+              });
+            }, 500);
+          }, 600);
+        }).catch((error) => {
+          loadingTip.textContent = '⚠️ Terjadi kesalahan saat memuat. Silakan refresh halaman.';
+          loadingTip.style.color = '#e74c3c';
+          console.error('Unity load error:', error);
+        });
+      }, 500);
+    }
+
+    // ---- Fullscreen ----
+    function toggleFullscreen() {
+      const gameEl = document.getElementById('game-section');
+      if (!document.fullscreenElement) {
+        gameEl.requestFullscreen().catch(err => {
+          console.warn('Fullscreen error:', err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Update fullscreen button text
+    document.addEventListener('fullscreenchange', () => {
+      const btn = document.getElementById('btn-fullscreen');
+      if (document.fullscreenElement) {
+        btn.innerHTML = '<span class="btn-icon">⛶</span> Exit Fullscreen';
+      } else {
+        btn.innerHTML = '<span class="btn-icon">⛶</span> Fullscreen';
+      }
+    });
+
+    // ---- Back to Landing ----
+    const confirmModal = document.getElementById('confirm-modal');
+    const btnModalCancel = document.getElementById('btn-modal-cancel');
+    const btnModalConfirm = document.getElementById('btn-modal-confirm');
+
+    function backToLanding() {
+      confirmModal.classList.remove('hidden');
+      // Trigger reflow to restart animation
+      void confirmModal.offsetWidth;
+      confirmModal.classList.add('visible');
+    }
+
+    function closeModal() {
+      confirmModal.classList.remove('visible');
+      setTimeout(() => {
+        confirmModal.classList.add('hidden');
+      }, 300); // Matches transition duration
+    }
+
+    btnModalCancel.addEventListener('click', closeModal);
+
+    btnModalConfirm.addEventListener('click', () => {
+      window.location.reload();
+    });
+
+    // Close modal on background click
+    confirmModal.addEventListener('click', (e) => {
+      if (e.target === confirmModal) {
+        closeModal();
+      }
+    });
+
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && confirmModal.classList.contains('visible')) {
+        closeModal();
+      }
+    });
+  </script>
+
+</body>
+
+</html>
